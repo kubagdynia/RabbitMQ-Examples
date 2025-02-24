@@ -1,9 +1,36 @@
+using MassTransit;
+using MassTransit.Core;
+using MassTransit.WebApi.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(builder.Configuration["RabbitMq:Host"], 5677, builder.Configuration["RabbitMq:VirtualHost"], h =>
+        {
+            h.Username(builder.Configuration["RabbitMq:Username"]!);
+            h.Password(builder.Configuration["RabbitMq:Password"]!);
+        });
+        
+        cfg.UseRawJsonSerializer();
+        
+        cfg.ConfigureEndpoints(context);
+        
+        cfg.Message<PaymentMessage>(m =>
+        {
+            m.SetEntityName("payment-message");
+        });
+        cfg.Publish<PaymentMessage>(p =>
+        {
+            p.ExchangeType = ExchangeType.Direct;
+        });
+    });
+});
 
 var app = builder.Build();
 
@@ -16,29 +43,20 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.MapPost("/publish-payment", async (IPublishEndpoint publishEndpoint) =>
+    {
+        var random = new Random();
+        PaymentMessage message = new PaymentMessage
+        {
+            PaymentId = random.Next(1, 1000), Amount = Math.Round((decimal)random.NextDouble() * 100000, 2),
+            Currency = "PLN"
+        };
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+        await publishEndpoint.Publish(message);
 
-app.Run();
+        return Results.Ok("Payment message published");
+    })
+    .WithName("PublishPayment")
+    .WithOpenApi();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+await app.RunAsync();

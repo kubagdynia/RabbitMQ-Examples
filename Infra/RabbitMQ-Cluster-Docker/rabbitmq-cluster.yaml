@@ -1,0 +1,77 @@
+services:
+  rabbitmq-node-1:
+    image: rabbitmq:3.13.7-management
+    container_name: rabbitmq-node-1
+    hostname: rabbitmq-node-1
+    restart: always
+    ports:
+      - "5678:5672" # port for AMQP
+      - "15678:15672" # port for RabbitMQ management
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "rabbitmq-cluster-cookie"
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_NODENAME: rabbit@rabbitmq-node-1
+    volumes:
+      - rabbitmq-node-1-data:/var/lib/rabbitmq
+      # - ./definitions.json:/etc/rabbitmq/definitions.json # Automatically load definitions from file
+    networks:
+      - rabbitmq_network
+    entrypoint: >
+      sh -c "
+      rabbitmq-server -detached;
+      sleep 10;
+      rabbitmqctl set_policy ha-all ".*" '{"ha-mode":"all"}';
+      tail -f /dev/null"
+
+  rabbitmq-node-2:
+    image: rabbitmq:3.13.7-management
+    container_name: rabbitmq-node-2
+    hostname: rabbitmq-node-2
+    restart: always
+    ports:
+      - "5679:5672" # port for AMQP
+      - "15679:15672" # port for RabbitMQ management
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "rabbitmq-cluster-cookie"
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_NODENAME: rabbit@rabbitmq-node-2
+    volumes:
+      - rabbitmq-node-2-data:/var/lib/rabbitmq
+      # - ./definitions.json:/etc/rabbitmq/definitions.json # Automatically load definitions from file
+    networks:
+      - rabbitmq_network
+    depends_on:
+      - rabbitmq-node-1
+    entrypoint: >
+      sh -c "
+      rabbitmq-server -detached;
+      sleep 10;
+      rabbitmqctl stop_app;
+      rabbitmqctl join_cluster rabbit@rabbitmq-node-1;
+      rabbitmqctl start_app;
+      tail -f /dev/null"
+
+  nginx:
+    image: nginx:latest
+    container_name: rabbitmq-loadbalancer
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "5677:5677"
+    networks:
+      - rabbitmq_network
+    depends_on:
+      - rabbitmq-node-1
+      - rabbitmq-node-2
+
+volumes:
+  rabbitmq-node-1-data:
+    driver: local
+  rabbitmq-node-2-data:
+    driver: local
+
+networks:
+  rabbitmq_network:
+    driver: bridge
