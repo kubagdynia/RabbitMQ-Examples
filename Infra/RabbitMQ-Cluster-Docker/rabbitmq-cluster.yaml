@@ -5,7 +5,6 @@ services:
     hostname: rabbitmq-node-1
     restart: always
     ports:
-      - "5678:5672" # port for AMQP
       - "15678:15672" # port for RabbitMQ management
     environment:
       RABBITMQ_ERLANG_COOKIE: "rabbitmq-cluster-cookie"
@@ -30,7 +29,6 @@ services:
     hostname: rabbitmq-node-2
     restart: always
     ports:
-      - "5679:5672" # port for AMQP
       - "15679:15672" # port for RabbitMQ management
     environment:
       RABBITMQ_ERLANG_COOKIE: "rabbitmq-cluster-cookie"
@@ -53,13 +51,13 @@ services:
       rabbitmqctl start_app;
       tail -f /dev/null"
 
-  nginx:
-    image: nginx:latest
-    container_name: rabbitmq-loadbalancer
+  haproxy:
+    image: haproxy:latest
+    container_name: rabbitmq-haproxy
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     ports:
-      - "5677:5677"
+      - "5677:5677" # Load Balancer dla AMQP
     networks:
       - rabbitmq_network
     depends_on:
