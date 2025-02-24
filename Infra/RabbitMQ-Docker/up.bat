@@ -1,0 +1,1 @@
+docker-compose -p rabbitmq-single -f rabbitmq.yaml up -d
