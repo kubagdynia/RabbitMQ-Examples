@@ -1,73 +1,92 @@
 services:
-  rabbitmq-node-1:
+  rabbitmq-cluster-node-1:
     image: rabbitmq:3.13.7-management
-    container_name: rabbitmq-node-1
-    hostname: rabbitmq-node-1
+    container_name: rabbitmq-cluster-node-1
+    hostname: rabbitmq-cluster-node-1
     restart: always
     ports:
-      - "15678:15672" # port for RabbitMQ management
+      - "15677:15672" # port for RabbitMQ management
     environment:
       RABBITMQ_ERLANG_COOKIE: "rabbitmq-cluster-cookie"
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: admin
-      RABBITMQ_NODENAME: rabbit@rabbitmq-node-1
+      # RABBITMQ_DEFAULT_USER: admin
+      # RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_NODENAME: rabbit@rabbitmq-cluster-node-1
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: '-rabbit load_definitions "/etc/rabbitmq/definitions.json"'
     volumes:
-      - rabbitmq-node-1-data:/var/lib/rabbitmq
-      # - ./definitions.json:/etc/rabbitmq/definitions.json # Automatically load definitions from file
+      - rabbitmq-cluster-node-1-data:/var/lib/rabbitmq
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./definitions.json:/etc/rabbitmq/definitions.json # Automatically load definitions from file
     networks:
       - rabbitmq_network
-    entrypoint: >
-      sh -c "
-      rabbitmq-server -detached;
-      sleep 10;
-      rabbitmqctl set_policy ha-all ".*" '{"ha-mode":"all"}';
-      tail -f /dev/null"
 
-  rabbitmq-node-2:
+  rabbitmq-cluster-node-2:
     image: rabbitmq:3.13.7-management
-    container_name: rabbitmq-node-2
-    hostname: rabbitmq-node-2
+    container_name: rabbitmq-cluster-node-2
+    hostname: rabbitmq-cluster-node-2
     restart: always
     ports:
-      - "15679:15672" # port for RabbitMQ management
+      - "15678:15672"
     environment:
       RABBITMQ_ERLANG_COOKIE: "rabbitmq-cluster-cookie"
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: admin
-      RABBITMQ_NODENAME: rabbit@rabbitmq-node-2
+      # RABBITMQ_DEFAULT_USER: admin
+      # RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_NODENAME: rabbit@rabbitmq-cluster-node-2
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: '-rabbit load_definitions "/etc/rabbitmq/definitions.json"'
     volumes:
-      - rabbitmq-node-2-data:/var/lib/rabbitmq
-      # - ./definitions.json:/etc/rabbitmq/definitions.json # Automatically load definitions from file
+      - rabbitmq-cluster-node-2-data:/var/lib/rabbitmq
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./definitions.json:/etc/rabbitmq/definitions.json # Automatically load definitions from file
     networks:
       - rabbitmq_network
     depends_on:
-      - rabbitmq-node-1
-    entrypoint: >
-      sh -c "
-      rabbitmq-server -detached;
-      sleep 10;
-      rabbitmqctl stop_app;
-      rabbitmqctl join_cluster rabbit@rabbitmq-node-1;
-      rabbitmqctl start_app;
-      tail -f /dev/null"
+      - rabbitmq-cluster-node-1
+
+  rabbitmq-cluster-node-3:
+    image: rabbitmq:3.13.7-management
+    container_name: rabbitmq-cluster-node-3
+    hostname: rabbitmq-cluster-node-3
+    restart: always
+    ports:
+      - "15679:15672"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "rabbitmq-cluster-cookie"
+      # RABBITMQ_DEFAULT_USER: admin
+      # RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_NODENAME: rabbit@rabbitmq-cluster-node-3
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: '-rabbit load_definitions "/etc/rabbitmq/definitions.json"'
+    volumes:
+      - rabbitmq-cluster-node-3-data:/var/lib/rabbitmq
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./definitions.json:/etc/rabbitmq/definitions.json # Automatically load definitions from file
+    networks:
+      - rabbitmq_network
+    depends_on:
+      - rabbitmq-cluster-node-1
+      - rabbitmq-cluster-node-2
 
   haproxy:
     image: haproxy:latest
-    container_name: rabbitmq-haproxy
+    container_name: rabbitmq-cluster-haproxy
     volumes:
       - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     ports:
-      - "5677:5677" # Load Balancer dla AMQP
+      - "5676:5676" # Load Balancer dla AMQP
     networks:
       - rabbitmq_network
     depends_on:
-      - rabbitmq-node-1
-      - rabbitmq-node-2
+      - rabbitmq-cluster-node-1
+      - rabbitmq-cluster-node-2
+      - rabbitmq-cluster-node-3
 
 volumes:
-  rabbitmq-node-1-data:
+  rabbitmq-cluster-node-1-data:
     driver: local
-  rabbitmq-node-2-data:
+  rabbitmq-cluster-node-2-data:
+    driver: local
+  rabbitmq-cluster-node-3-data:
     driver: local
 
 networks:
