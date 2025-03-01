@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.Core", "MassTra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.WebApi", "MassTransit.WebApi\MassTransit.WebApi.csproj", "{ADF644B7-4704-4CAC-AE5D-B9798CDE59D1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.ConsoleConsumer", "MassTransit.ConsoleConsumer\MassTransit.ConsoleConsumer.csproj", "{ABF48BBC-2322-4B76-8436-83155767322B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{ADF644B7-4704-4CAC-AE5D-B9798CDE59D1}.Release|x64.Build.0 = Release|Any CPU
 		{ADF644B7-4704-4CAC-AE5D-B9798CDE59D1}.Release|x86.ActiveCfg = Release|Any CPU
 		{ADF644B7-4704-4CAC-AE5D-B9798CDE59D1}.Release|x86.Build.0 = Release|Any CPU
+		{ABF48BBC-2322-4B76-8436-83155767322B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABF48BBC-2322-4B76-8436-83155767322B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABF48BBC-2322-4B76-8436-83155767322B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ABF48BBC-2322-4B76-8436-83155767322B}.Debug|x64.Build.0 = Debug|Any CPU
+		{ABF48BBC-2322-4B76-8436-83155767322B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ABF48BBC-2322-4B76-8436-83155767322B}.Debug|x86.Build.0 = Debug|Any CPU
+		{ABF48BBC-2322-4B76-8436-83155767322B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABF48BBC-2322-4B76-8436-83155767322B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABF48BBC-2322-4B76-8436-83155767322B}.Release|x64.ActiveCfg = Release|Any CPU
+		{ABF48BBC-2322-4B76-8436-83155767322B}.Release|x64.Build.0 = Release|Any CPU
+		{ABF48BBC-2322-4B76-8436-83155767322B}.Release|x86.ActiveCfg = Release|Any CPU
+		{ABF48BBC-2322-4B76-8436-83155767322B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

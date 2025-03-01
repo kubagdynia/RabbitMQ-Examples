@@ -11,11 +11,15 @@ builder.Services.AddMassTransit(x =>
 {
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host(builder.Configuration["RabbitMq:Host"], 5677, builder.Configuration["RabbitMq:VirtualHost"], h =>
-        {
-            h.Username(builder.Configuration["RabbitMq:Username"]!);
-            h.Password(builder.Configuration["RabbitMq:Password"]!);
-        });
+        cfg.Host(
+            host: builder.Configuration["RabbitMq:Host"],
+            port: ushort.Parse(builder.Configuration["RabbitMq:Port"]!),
+            virtualHost: builder.Configuration["RabbitMq:VirtualHost"],
+            configure: h =>
+            {
+                h.Username(builder.Configuration["RabbitMq:Username"]!);
+                h.Password(builder.Configuration["RabbitMq:Password"]!);
+            });
         
         cfg.UseRawJsonSerializer();
         
