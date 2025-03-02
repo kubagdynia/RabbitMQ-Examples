@@ -9,7 +9,7 @@ public class PaymentNotificationConsumer(ILogger<PaymentNotificationConsumer> lo
     {
         PaymentMessage message = context.Message;
         
-        // throw new NotSupportedException("This is a test exception");
+        //throw new NotSupportedException("This is a test exception");
         
         logger.LogInformation("Received payment: {PaymentId} with amount {Amount} {Currency}",
             message.PaymentId, message.Amount, message.Currency);

@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using MassTransit;
 using MassTransit.Core;
 using MassTransit.WebApi.Models;
@@ -27,11 +28,11 @@ builder.Services.AddMassTransit(x =>
         
         cfg.Message<PaymentMessage>(m =>
         {
-            m.SetEntityName("payment-message");
+            m.SetEntityName("payment_events");
         });
         cfg.Publish<PaymentMessage>(p =>
         {
-            p.ExchangeType = ExchangeType.Direct;
+            p.ExchangeType = ExchangeType.Fanout;
         });
     });
 });

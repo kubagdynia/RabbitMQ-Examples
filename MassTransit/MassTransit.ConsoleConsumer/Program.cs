@@ -31,7 +31,7 @@ var host = Host.CreateDefaultBuilder(args)
                 
                 cfg.UseRawJsonDeserializer(RawSerializerOptions.All);
 
-                cfg.ReceiveEndpoint("payment-notification", e =>
+                cfg.ReceiveEndpoint("payment_processing", e =>
                 {
                     e.UseMessageRetry(r => r.Interval(
                         retryCount: 3, interval: TimeSpan.FromSeconds(5)));
