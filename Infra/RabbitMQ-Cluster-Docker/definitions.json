@@ -13,9 +13,20 @@
   "vhosts": [
     {
       "name": "/",
+      "description": "Default vhost",
       "default_queue_type": "classic",
       "metadata": {
         "description": "Default vhost",
+        "default_queue_type": "classic",
+        "tags": []
+      }
+    },
+    {
+      "name": "test",
+      "description": "Test vhost",
+      "default_queue_type": "classic",
+      "metadata": {
+        "description": "Test vhost",
         "default_queue_type": "classic",
         "tags": []
       }
@@ -23,7 +34,7 @@
   ],
   "policies": [
     {
-      "vhost": "/",
+      "vhost": "test",
       "name": "ha-all",
       "pattern": ".*",
       "apply-to": "queues",
@@ -50,6 +61,13 @@
       "configure": ".*",
       "write": ".*",
       "read": ".*"
+    },
+    {
+      "user": "admin",
+      "vhost": "test",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
     }
   ],
   "exchanges": [
@@ -64,7 +82,7 @@
     },
     {
       "name": "payment_events",
-      "vhost": "/",
+      "vhost": "test",
       "type": "fanout",
       "durable": true,
       "auto_delete": false,
@@ -73,7 +91,7 @@
     },
     {
       "name": "payment_processing",
-      "vhost": "/",
+      "vhost": "test",
       "type": "fanout",
       "durable": true,
       "auto_delete": false,
@@ -82,7 +100,25 @@
     },
     {
       "name": "payment_processing_error",
-      "vhost": "/",
+      "vhost": "test",
+      "type": "fanout",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "payment_completed",
+      "vhost": "test",
+      "type": "fanout",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "payment_completed_error",
+      "vhost": "test",
       "type": "fanout",
       "durable": true,
       "auto_delete": false,
@@ -102,25 +138,7 @@
     },
     {
       "name": "payment_processing",
-      "vhost": "/",
-      "durable": true,
-      "auto_delete": false,
-      "arguments": {
-        "x-queue-type": "classic"
-      }
-    },
-    {
-      "name": "payment_completed",
-      "vhost": "/",
-      "durable": true,
-      "auto_delete": false,
-      "arguments": {
-        "x-queue-type": "classic"
-      }
-    },
-    {
-      "name": "payment_failed",
-      "vhost": "/",
+      "vhost": "test",
       "durable": true,
       "auto_delete": false,
       "arguments": {
@@ -129,7 +147,25 @@
     },
     {
       "name": "payment_processing_error",
-      "vhost": "/",
+      "vhost": "test",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "classic"
+      }
+    },
+    {
+      "name": "payment_completed",
+      "vhost": "test",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "classic"
+      }
+    },
+    {
+      "name": "payment_completed_error",
+      "vhost": "test",
       "durable": true,
       "auto_delete": false,
       "arguments": {
@@ -148,7 +184,7 @@
     },
     {
       "source": "payment_events",
-      "vhost": "/",
+      "vhost": "test",
       "destination": "payment_processing",
       "destination_type": "queue",
       "routing_key": "",
@@ -156,7 +192,7 @@
     },
     {
       "source": "payment_processing",
-      "vhost": "/",
+      "vhost": "test",
       "destination": "payment_processing",
       "destination_type": "queue",
       "routing_key": "",
@@ -164,8 +200,24 @@
     },
     {
       "source": "payment_processing_error",
-      "vhost": "/",
+      "vhost": "test",
       "destination": "payment_processing_error",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    },
+    {
+      "source": "payment_completed",
+      "vhost": "test",
+      "destination": "payment_completed",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    },
+    {
+      "source": "payment_completed_error",
+      "vhost": "test",
+      "destination": "payment_completed_error",
       "destination_type": "queue",
       "routing_key": "",
       "arguments": {}

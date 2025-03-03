@@ -1,4 +1,5 @@
 using System.Security.Authentication;
+using System.Text.Json;
 using MassTransit;
 using MassTransit.Core;
 using MassTransit.WebApi.Models;
@@ -22,7 +23,12 @@ builder.Services.AddMassTransit(x =>
                 h.Password(builder.Configuration["RabbitMq:Password"]!);
             });
         
-        cfg.UseRawJsonSerializer();
+        cfg.UseRawJsonSerializer(RawSerializerOptions.AnyMessageType);
+        
+        cfg.ConfigureJsonSerializerOptions(_ => new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
         
         cfg.ConfigureEndpoints(context);
         
@@ -33,6 +39,10 @@ builder.Services.AddMassTransit(x =>
         cfg.Publish<PaymentMessage>(p =>
         {
             p.ExchangeType = ExchangeType.Fanout;
+        });
+        cfg.Publish<Fault<PaymentMessage>>(p =>
+        {
+            p.Exclude = true;
         });
     });
 });
