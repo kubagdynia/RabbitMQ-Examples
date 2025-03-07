@@ -1,0 +1,1 @@
+docker-compose -p rabbitmq-cluster -f rabbitmq-cluster.yaml up -d

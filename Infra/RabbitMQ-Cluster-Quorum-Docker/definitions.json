@@ -1,0 +1,214 @@
+{
+  "rabbit_version": "3.13.7",
+  "rabbitmq_version": "3.13.7",
+  "product_name": "RabbitMQ",
+  "product_version": "3.13.7",
+  "global_parameters": [
+    {
+      "name": "internal_cluster_id",
+      "value": "rabbitmq-cluster-id-ydm7KRAAU2DjLt4ZLQe3vw"
+    }
+  ],
+  "parameters": [],
+  "vhosts": [
+    {
+      "name": "/",
+      "description": "Default vhost",
+      "default_queue_type": "classic",
+      "metadata": {
+        "description": "Default vhost",
+        "default_queue_type": "classic",
+        "tags": []
+      }
+    },
+    {
+      "name": "test",
+      "description": "Test vhost",
+      "default_queue_type": "quorum",
+      "metadata": {
+        "description": "Test vhost",
+        "default_queue_type": "quorum",
+        "tags": []
+      }
+    }
+  ],
+  "policies": [],
+  "users": [
+    {
+      "name": "admin",
+      "password_hash": "Hqm0iyKF8znYkmJIBNUnje5EUKvvTeK2H6v6viny3ujaZhEZ",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": ["administrator"],
+      "limits": {}
+    }
+  ],
+  "permissions": [
+    {
+      "user": "admin",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    },
+    {
+      "user": "admin",
+      "vhost": "test",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "exchange1",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "payment_events",
+      "vhost": "test",
+      "type": "fanout",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "payment_processing",
+      "vhost": "test",
+      "type": "fanout",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "payment_processing_error",
+      "vhost": "test",
+      "type": "fanout",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "payment_completed",
+      "vhost": "test",
+      "type": "fanout",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "payment_completed_error",
+      "vhost": "test",
+      "type": "fanout",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "queues": [
+    {
+      "name": "queue1",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "classic"
+      }
+    },
+    {
+      "name": "payment_processing",
+      "vhost": "test",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "quorum"
+      }
+    },
+    {
+      "name": "payment_processing_error",
+      "vhost": "test",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "quorum"
+      }
+    },
+    {
+      "name": "payment_completed",
+      "vhost": "test",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "quorum"
+      }
+    },
+    {
+      "name": "payment_completed_error",
+      "vhost": "test",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-queue-type": "quorum"
+      }
+    }
+  ],
+  "bindings": [
+    {
+      "source": "exchange1",
+      "vhost": "/",
+      "destination": "queue1",
+      "destination_type": "queue",
+      "routing_key": "queue1",
+      "arguments": {}
+    },
+    {
+      "source": "payment_events",
+      "vhost": "test",
+      "destination": "payment_processing",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    },
+    {
+      "source": "payment_processing",
+      "vhost": "test",
+      "destination": "payment_processing",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    },
+    {
+      "source": "payment_processing_error",
+      "vhost": "test",
+      "destination": "payment_processing_error",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    },
+    {
+      "source": "payment_completed",
+      "vhost": "test",
+      "destination": "payment_completed",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    },
+    {
+      "source": "payment_completed_error",
+      "vhost": "test",
+      "destination": "payment_completed_error",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {}
+    }
+  ]
+}

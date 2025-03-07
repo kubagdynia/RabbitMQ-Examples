@@ -1,0 +1,94 @@
+services:
+  rabbitmq-cluster-node-1:
+    image: rabbitmq:4.0.7-management
+    container_name: rabbitmq-cluster-node-1
+    hostname: rabbitmq-cluster-node-1
+    restart: always
+    ports:
+      - "15677:15672" # port for RabbitMQ management
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "rabbitmq-cluster-cookie"
+      # RABBITMQ_DEFAULT_USER: admin
+      # RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_NODENAME: rabbit@rabbitmq-cluster-node-1
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: '-rabbit load_definitions "/etc/rabbitmq/definitions.json"'
+    volumes:
+      - rabbitmq-cluster-node-1-data:/var/lib/rabbitmq
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./definitions.json:/etc/rabbitmq/definitions.json # Automatically load definitions from file
+    networks:
+      - rabbitmq_network
+
+  rabbitmq-cluster-node-2:
+    image: rabbitmq:4.0.7-management
+    container_name: rabbitmq-cluster-node-2
+    hostname: rabbitmq-cluster-node-2
+    restart: always
+    ports:
+      - "15678:15672"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "rabbitmq-cluster-cookie"
+      # RABBITMQ_DEFAULT_USER: admin
+      # RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_NODENAME: rabbit@rabbitmq-cluster-node-2
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: '-rabbit load_definitions "/etc/rabbitmq/definitions.json"'
+    volumes:
+      - rabbitmq-cluster-node-2-data:/var/lib/rabbitmq
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./definitions.json:/etc/rabbitmq/definitions.json # Automatically load definitions from file
+    networks:
+      - rabbitmq_network
+    depends_on:
+      - rabbitmq-cluster-node-1
+
+  rabbitmq-cluster-node-3:
+    image: rabbitmq:4.0.7-management
+    container_name: rabbitmq-cluster-node-3
+    hostname: rabbitmq-cluster-node-3
+    restart: always
+    ports:
+      - "15679:15672"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "rabbitmq-cluster-cookie"
+      # RABBITMQ_DEFAULT_USER: admin
+      # RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_NODENAME: rabbit@rabbitmq-cluster-node-3
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: '-rabbit load_definitions "/etc/rabbitmq/definitions.json"'
+    volumes:
+      - rabbitmq-cluster-node-3-data:/var/lib/rabbitmq
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./definitions.json:/etc/rabbitmq/definitions.json # Automatically load definitions from file
+    networks:
+      - rabbitmq_network
+    depends_on:
+      - rabbitmq-cluster-node-1
+      - rabbitmq-cluster-node-2
+
+  haproxy:
+    image: haproxy:latest
+    container_name: rabbitmq-cluster-haproxy
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports:
+      - "5676:5676" # Load Balancer dla AMQP
+    networks:
+      - rabbitmq_network
+    depends_on:
+      - rabbitmq-cluster-node-1
+      - rabbitmq-cluster-node-2
+      - rabbitmq-cluster-node-3
+
+volumes:
+  rabbitmq-cluster-node-1-data:
+    driver: local
+  rabbitmq-cluster-node-2-data:
+    driver: local
+  rabbitmq-cluster-node-3-data:
+    driver: local
+
+networks:
+  rabbitmq_network:
+    driver: bridge
